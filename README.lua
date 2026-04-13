@@ -1171,7 +1171,6 @@ local function MainWindow()
 		}, windowChildren),
 	})
 end
-end
 local default = pure(MainWindow)
 return {
 	default = default,
@@ -3700,6 +3699,8 @@ local function WindowTitleBar(_param)
 	end
 	local onClose = _param.onClose
 	local children = _param[Roact.Children]
+	local platform = UserInputService:GetPlatform()
+	local isMobile = platform == Enum.Platform.IOS or platform == Enum.Platform.Android
 	local _binding = useWindowContext()
 	local size = _binding.size
 	local maximized = _binding.maximized
@@ -3772,7 +3773,7 @@ local function WindowTitleBar(_param)
 			BackgroundTransparency = 1,
 		}),
 		Roact.createElement(Button, {
-			onPress = function(rbx, x, y)
+			onPress = isMobile and nil or function(rbx, x, y)
 				local mouse = Vector2.new(x, y)
 				if maximized then
 					local currentSize = Vector2.new(size:getValue().X - 46 * 3, height)
@@ -3785,7 +3786,7 @@ local function WindowTitleBar(_param)
 					setDragStart(mouse)
 				end
 			end,
-			active = false,
+			active = not isMobile,
 			size = UDim2.new(1, -46 * 3, 1, 0),
 		}),
 		Roact.createElement(Button, {
