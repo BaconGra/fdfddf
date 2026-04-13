@@ -1133,35 +1133,44 @@ local Window = TS.import(script, script.Parent.Parent, "Window").default
 local activateAction = TS.import(script, script.Parent.Parent.Parent, "reducers", "action-bar").activateAction
 local pure = TS.import(script, TS.getModule(script, "@rbxts", "roact-hooked").out).pure
 local useRootDispatch = TS.import(script, script.Parent.Parent.Parent, "hooks", "use-root-store").useRootDispatch
+local UserInputService = TS.import(script, TS.getModule(script, "@rbxts", "services")).UserInputService
 local function MainWindow()
 	local dispatch = useRootDispatch()
+	local platform = UserInputService:GetPlatform()
+	local isMobile = platform == Enum.Platform.IOS or platform == Enum.Platform.Android
+	local initialSize = isMobile and UDim2.new(1, -20, 1, -20) or UDim2.new(0, 1080, 0, 700)
+	local initialPosition = isMobile and UDim2.new(0, 10, 0, 10) or UDim2.new(0.5, -540, 0.5, -350)
+	local windowChildren = {
+		Roact.createElement(Window.DropShadow),
+		Roact.createElement(AcrylicBackground),
+		Roact.createElement(ActionBar),
+		Roact.createElement(TabGroup),
+		Roact.createElement(PageGroup),
+		Roact.createElement(SidePanel.Root, {}, {
+			Roact.createElement(Traceback),
+			Roact.createElement(FunctionTree),
+		}),
+		Roact.createElement(Window.TitleBar, {
+			onClose = function()
+				return dispatch(activateAction("close"))
+			end,
+			caption = '<font color="#FFFFFF">RemoteSpy</font>    <font color="#B2B2B2">' .. ("0.2.0-alpha" .. "</font>"),
+			captionTransparency = 0.1,
+			icon = "rbxassetid://9886981409",
+		}),
+	}
+	if not isMobile then
+		table.insert(windowChildren, Roact.createElement(Window.Resize, {
+			minSize = Vector2.new(650, 450),
+		}))
+	end
 	return Roact.createElement(Root, {}, {
 		Roact.createElement(Window.Root, {
-			initialSize = UDim2.new(0, 1080, 0, 700),
-			initialPosition = UDim2.new(0.5, -540, 0.5, -350),
-		}, {
-			Roact.createElement(Window.DropShadow),
-			Roact.createElement(AcrylicBackground),
-			Roact.createElement(ActionBar),
-			Roact.createElement(TabGroup),
-			Roact.createElement(PageGroup),
-			Roact.createElement(SidePanel.Root, {}, {
-				Roact.createElement(Traceback),
-				Roact.createElement(FunctionTree),
-			}),
-			Roact.createElement(Window.TitleBar, {
-				onClose = function()
-					return dispatch(activateAction("close"))
-				end,
-				caption = '<font color="#FFFFFF">RemoteSpy</font>    <font color="#B2B2B2">' .. ("0.2.0-alpha" .. "</font>"),
-				captionTransparency = 0.1,
-				icon = "rbxassetid://9886981409",
-			}),
-			Roact.createElement(Window.Resize, {
-				minSize = Vector2.new(650, 450),
-			}),
-		}),
+			initialSize = initialSize,
+			initialPosition = initialPosition,
+		}, windowChildren),
 	})
+end
 end
 local default = pure(MainWindow)
 return {
@@ -3532,9 +3541,9 @@ local function WindowResize(_param)
 		end
 		local startPosition = position:getValue()
 		local startSize = size:getValue()
-		local inputBegan = UserInputService.InputChanged:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseMovement then
-				local current = UserInputService:GetMouseLocation()
+		local inputChanged = UserInputService.InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+				local current = input.UserInputType == Enum.UserInputType.Touch and input.Position or UserInputService:GetMouseLocation()
 				local _mouse = dragStart.mouse
 				local delta = current - _mouse
 				local _arg0 = dragStart.direction * delta
@@ -3552,12 +3561,12 @@ local function WindowResize(_param)
 			end
 		end)
 		local inputEnded = UserInputService.InputEnded:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 				setDragStart(nil)
 			end
 		end)
 		return function()
-			inputBegan:Disconnect()
+			inputChanged:Disconnect()
 			inputEnded:Disconnect()
 		end
 	end, { dragStart })
@@ -3717,9 +3726,9 @@ local function WindowTitleBar(_param)
 		end
 		local startPos = startPosition:getValue()
 		local shouldMinimize = maximized
-		local mouseMoved = UserInputService.InputChanged:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseMovement then
-				local current = UserInputService:GetMouseLocation()
+		local inputChanged = UserInputService.InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+				local current = input.UserInputType == Enum.UserInputType.Touch and input.Position or UserInputService:GetMouseLocation()
 				local delta = current - dragStart
 				setPosition(startPos + delta)
 				if shouldMinimize then
@@ -3728,14 +3737,14 @@ local function WindowTitleBar(_param)
 				end
 			end
 		end)
-		local mouseUp = UserInputService.InputEnded:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		local inputEnded = UserInputService.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 				setDragStart(nil)
 			end
 		end)
 		return function()
-			mouseMoved:Disconnect()
-			mouseUp:Disconnect()
+			inputChanged:Disconnect()
+			inputEnded:Disconnect()
 		end
 	end, { dragStart })
 	local _attributes = {
