@@ -404,7 +404,7 @@ local function ActionBar()
 		Roact.createElement("Frame", {
 			BackgroundColor3 = Color3.new(1, 1, 1),
 			BackgroundTransparency = 0.92,
-			Size = UDim2.new(0, 0, 5, 1),
+			Size = UDim2.new(1, 0, 0, 1),
 			Position = UDim2.new(0, 0, 0, 83),
 			BorderSizePixel = 0,
 		}),
@@ -718,7 +718,7 @@ local function ActionLine()
 		Roact.createElement("Frame", {
 			BackgroundColor3 = Color3.new(1, 1, 1),
 			BackgroundTransparency = 0.92,
-			Size = UDim2.new(0, 1, 0, 10),
+			Size = UDim2.new(0, 1, 0, 24),
 			Position = UDim2.new(0, 6, 0, 4),
 			BorderSizePixel = 0,
 		}),
@@ -1016,7 +1016,7 @@ local Divider = function()
 	return Roact.createElement("Frame", {
 		BackgroundColor3 = Color3.new(1, 1, 1),
 		BackgroundTransparency = 0.92,
-		Size = UDim2.new(0, 0, 5, 1),
+		Size = UDim2.new(1, 0, 0, 1),
 		Position = UDim2.new(0, 0, 1, -1),
 		BorderSizePixel = 0,
 	})
@@ -1066,7 +1066,7 @@ local function AcrylicBackground()
 		Roact.createElement("Frame", {
 			BackgroundColor3 = Color3.fromHex("#1C1F28"),
 			BackgroundTransparency = 0.4,
-			Size = UDim2.new(0, 0, 5, 0),
+			Size = UDim2.new(1, 0, 1, 0),
 			BorderSizePixel = 0,
 		}, {
 			Roact.createElement("UICorner", {
@@ -1076,7 +1076,7 @@ local function AcrylicBackground()
 		Roact.createElement("Frame", {
 			BackgroundColor3 = Color3.fromHex("#FFFFFF"),
 			BackgroundTransparency = 0.4,
-			Size = UDim2.new(0, 0, 5, 0),
+			Size = UDim2.new(1, 0, 1, 0),
 			BorderSizePixel = 0,
 		}, {
 			Roact.createElement("UICorner", {
@@ -1238,7 +1238,7 @@ local function Home(_param)
 		ScrollBarThickness = 0,
 		ScrollBarImageTransparency = 1,
 		CanvasSize = UDim2.new(0, 0, 0, (#remoteLogIds + 1) * (64 + 4)),
-		Size = UDim2.new(0, 0, 5, 0),
+		Size = UDim2.new(1, 0, 1, 0),
 		BorderSizePixel = 0,
 		BackgroundTransparency = 1,
 	}
@@ -1673,7 +1673,7 @@ local function Logger(_param)
 		end),
 		ScrollBarThickness = 0,
 		ScrollBarImageTransparency = 1,
-		Size = UDim2.new(0, 0, 5, 0),
+		Size = UDim2.new(1, 0, 1, 0),
 		BorderSizePixel = 0,
 		BackgroundTransparency = 1,
 	}
@@ -1837,7 +1837,7 @@ local function RowBody(_param)
 		Roact.createElement(RowLine),
 		Roact.createElement("Frame", {
 			AutomaticSize = "Y",
-			Size = UDim2.new(0, 1, 0, 0),
+			Size = UDim2.new(1, 0, 0, 0),
 			BackgroundColor3 = Color3.new(1, 1, 1),
 			BackgroundTransparency = 0.98,
 			BorderSizePixel = 0,
@@ -1875,7 +1875,7 @@ local function RowBody(_param)
 		Roact.createElement(RowLine),
 		Roact.createElement("Frame", {
 			AutomaticSize = "Y",
-			Size = UDim2.new(0, 1, 0, 0),
+			Size = UDim2.new(1, 0, 0, 0),
 			BackgroundColor3 = Color3.new(1, 1, 1),
 			BackgroundTransparency = 0.98,
 			BorderSizePixel = 0,
@@ -2180,7 +2180,7 @@ local function RowHeader(_param)
 			Image = if open then "rbxassetid://9913448536" else "rbxassetid://9913448364",
 			ImageTransparency = rowButton.foreground,
 			AnchorPoint = Vector2.new(1, 0),
-			Size = UDim2.new(0, 8, 0, 16),
+			Size = UDim2.new(0, 16, 0, 16),
 			Position = UDim2.new(1, -18, 0, 24),
 			BackgroundTransparency = 1,
 		}),
@@ -2197,7 +2197,7 @@ local TS = require(script.Parent.Parent.Parent.Parent.Parent.include.RuntimeLib)
 local Roact = TS.import(script, TS.getModule(script, "@rbxts", "roact").src)
 local function RowLine()
 	return Roact.createElement("Frame", {
-		Size = UDim2.new(0, 1, 0, 1),
+		Size = UDim2.new(1, 0, 0, 1),
 		BackgroundColor3 = Color3.new(),
 		BackgroundTransparency = 0.85,
 		BorderSizePixel = 0,
@@ -3088,8 +3088,8 @@ local function TabGroup()
 		ScrollingDirection = "X",
 		HorizontalScrollBarInset = "None",
 		ScrollBarThickness = 0,
-		Size = UDim2.new(1, -SIDE_PANEL_WIDTH - 3, 0, 15),
-		Position = UDim2.new(0, 5, 0, 45),
+		Size = UDim2.new(1, -SIDE_PANEL_WIDTH - 5, 0, 35),
+		Position = UDim2.new(0, 5, 0, 89),
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 	}
@@ -3426,7 +3426,7 @@ local function WindowBackground(_param)
 	end
 	local children = _param[Roact.Children]
 	local _attributes = {
-		Size = UDim2.new(0, 1, 1, 0),
+		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundColor3 = background,
 		BackgroundTransparency = transparency,
 		BorderSizePixel = 0,
