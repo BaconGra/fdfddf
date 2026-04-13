@@ -1,34 +1,13 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Poprawiona wersja z timeoutem (nie będzie infinite yield)
-local framework = ReplicatedStorage:WaitForChild("framework", 30) -- max 30 sekund czekania
-
-if not framework then
-    return warn("❌ Nie znaleziono 'framework' w ReplicatedStorage po 30 sekundach!")
-end
-
-local modulePath = framework
+-- Najpierw próbujemy starego hooka (na wszelki wypadek)
+local modulePath = ReplicatedStorage:WaitForChild("framework", 15)
     :WaitForChild("modules", 10)
     :WaitForChild("1 | Directory", 10)
     :WaitForChild("Areas", 10)
     :WaitForChild("areas | Spawn World", 10)
 
-if not modulePath or not modulePath:IsA("ModuleScript") then
-    return warn("❌ Nie znaleziono modułu 'areas | Spawn World' – sprawdź nazwę/path")
-end
-
 local modifiedAreas = {
-    Shop = { name = "Shop", world = "Spawn", mult = 1, isShop = true, teleportPrice = 25000, hidden = false },
-    VIP = { name = "VIP", world = "Spawn", mult = 1, isShop = false, teleportPrice = 5000, hidden = false },
-    Town = { name = "Town", world = "Spawn", mult = 1, gate = { cost = 0, currency = "Coins" }, isShop = false, teleportPrice = 6000, hidden = false },
-    Forest = { name = "Forest", world = "Spawn", mult = 2, gate = { cost = 10000, currency = "Coins" }, isShop = false, teleportPrice = 7500, hidden = false },
-    Beach = { name = "Beach", world = "Spawn", mult = 3.5, gate = { cost = 75000, currency = "Coins" }, isShop = false, teleportPrice = 10000, hidden = false },
-    Mine = { name = "Mine", world = "Spawn", mult = 5, gate = { cost = 400000, currency = "Coins" }, isShop = false, teleportPrice = 12500, hidden = false },
-    Winter = { name = "Winter", world = "Spawn", mult = 6.5, gate = { cost = 1250000, currency = "Coins" }, isShop = false, teleportPrice = 12500, hidden = false },
-    Glacier = { name = "Glacier", world = "Spawn", mult = 8.25, gate = { cost = 5500000, currency = "Coins" }, isShop = false, teleportPrice = 12500, hidden = false },
-    Desert = { name = "Desert", world = "Spawn", mult = 10, gate = { cost = 16500000, currency = "Coins" }, isShop = false, teleportPrice = 12500, hidden = false },
-    Volcano = { name = "Volcano", world = "Spawn", mult = 11.5, gate = { cost = 50000000, currency = "Coins" }, isShop = false, teleportPrice = 25000, hidden = false },
-    Cave = { name = "Cave", world = "Spawn", mult = 1, gate = { cost = 250000000, currency = "Coins" }, isShop = false, teleportPrice = 20000, hidden = false },
     ["Ice Tech"] = {
         name = "Tech Entry",
         world = "Spawn",
@@ -40,21 +19,51 @@ local modifiedAreas = {
     }
 }
 
-local oldRequire = require
-local hooked = false
-
-local function hookedRequire(mod)
-    if mod == modulePath then
-        if not hooked then
-            hooked = true
-            print("🚀 Ice Tech currency zmieniony na Coins – cheat aktywny!")
+if modulePath then
+    local oldRequire = require
+    hookfunction(require, function(mod)
+        if mod == modulePath then
+            print("🚀 Hook require zadziałał – Ice Tech podmieniony!")
+            return modifiedAreas
         end
-        return modifiedAreas
-    end
-    return oldRequire(mod)
+        return oldRequire(mod)
+    end)
 end
 
-hookfunction(require, hookedRequire)
+-- NOWA, NAJLEPSZA METODA: przeszukujemy całą pamięć gry (getgc)
+local function findAndModifyIceTech()
+    local found = false
+    for _, obj in ipairs(getgc(false)) do
+        if typeof(obj) == "table" and obj["Ice Tech"] then
+            local ice = obj["Ice Tech"]
+            if ice.gate then
+                ice.gate.currency = "Coins"   -- <<< zmieniamy na normalne Coins
+                -- ice.gate.cost = 0          -- możesz odkomentować jeśli chcesz darmowy wjazd
+                print("✅ ZNALEZIONO i ZMIENIONO Ice Tech w pamięci gry!")
+                print("   Teraz pokazuje Coins zamiast Tech/Fantasy Coins")
+                found = true
+            end
+        end
+    end
+    return found
+end
 
-print("✅ CHEAT ZAŁADOWANY! (framework znaleziony)")
-print("   Wejdź w Ice Tech – gate powinien brać normalne Coins")
+-- Uruchamiamy co 1 sekundę aż znajdzie (na wypadek ładowania)
+local attempts = 0
+task.spawn(function()
+    repeat
+        attempts = attempts + 1
+        if findAndModifyIceTech() then
+            break
+        end
+        task.wait(1)
+    until attempts > 15
+    
+    if attempts > 15 then
+        warn("❌ Nie znaleziono tabeli Ice Tech w pamięci – gra może mieć inną strukturę")
+    else
+        print("🎉 CHEAT W PEŁNI AKTYWNY! Wejdź do Ice Tech i sprawdź gate.")
+    end
+end)
+
+print("✅ SKRYPT URUCHOMIONY – czekam na załadowanie tabeli...")
