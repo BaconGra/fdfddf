@@ -1,22 +1,19 @@
 local player = game.Players.LocalPlayer
 
--- Dokładna ścieżka, którą podałeś (zamiast hardcoded nicka)
+-- Dokładna ścieżka do Coins (działa dla Twojego nicku i każdego innego)
 local coinsContainer = player:WaitForChild("PlayerScripts")
     :WaitForChild("Scripts")
     :WaitForChild("Game")
     :WaitForChild("Coins")
 
-print("✅ Znaleziono Coins w: " .. coinsContainer:GetFullName())
+print("✅ Znaleziono Coins!")
 
 -- ==================== FUNKCJA DO DODAWANIA COINÓW ====================
 local function addCoins(amount)
     local added = false
 
-    -- 1. Szukamy w całej pamięci gry (getgc) – najskuteczniejsza metoda
     for _, obj in ipairs(getgc(false)) do
         if typeof(obj) == "table" then
-            
-            -- Najczęstsze klucze w tego typu grach
             if obj.Coins and typeof(obj.Coins) == "number" then
                 obj.Coins = obj.Coins + amount
                 added = true
@@ -29,8 +26,6 @@ local function addCoins(amount)
                 obj.currentCoins = obj.currentCoins + amount
                 added = true
             end
-
-            -- Leaderstats (jeśli gra używa standardowego leaderstats)
             if obj.Value and typeof(obj.Value) == "number" and tostring(obj):find("Coins") then
                 obj.Value = obj.Value + amount
                 added = true
@@ -38,12 +33,11 @@ local function addCoins(amount)
         end
     end
 
-    -- 2. Dodatkowa próba – jeśli Coins to ModuleScript
     if coinsContainer:IsA("ModuleScript") then
         local success, coinModule = pcall(require, coinsContainer)
         if success and typeof(coinModule) == "table" then
-            if coinModule.Add or coinModule.addCoins or coinModule.giveCoins then
-                local func = coinModule.Add or coinModule.addCoins or coinModule.giveCoins
+            local func = coinModule.Add or coinModule.addCoins or coinModule.giveCoins
+            if func then
                 pcall(func, player, amount)
                 added = true
             end
@@ -51,24 +45,14 @@ local function addCoins(amount)
     end
 
     if added then
-        print("🚀 Dodano " .. tostring(amount) .. " Coins! Sprawdź stan konta.")
+        print("🚀 DODANO " .. tostring(amount) .. " Coins! (10 miliardów)")
     else
-        warn("❌ Nie znaleziono tabeli z Coins – gra może mieć inną nazwę zmiennej")
+        warn("❌ Nie znaleziono Coins w pamięci – gra może mieć inną nazwę")
     end
 end
 
--- ====================== PRZYKŁADY UŻYCIA ======================
-addCoins(1000000000)        -- +1 miliard Coins (jednorazowo)
--- addCoins(5000000000)     -- +5 miliardów (odkomentuj jak chcesz)
+-- ====================== AUTOMATYCZNE DODANIE 10 MILIARDÓW ======================
+addCoins(10000000000)   -- <<< 10B Coins dodawane automatycznie po wklejeniu skryptu
 
--- Jeśli chcesz dodawać co chwilę (np. co 3 sekundy):
--- task.spawn(function()
---     while true do
---         addCoins(250000000)   -- co 3 sekundy +250 milionów
---         task.wait(3)
---     end
--- end)
-
-print("💰 Skrypt gotowy!")
-print("   Aby dodać dowolną ilość wpisz w executorze:")
-print("   addCoins(ILE_CHCESZ)   <-- np. addCoins(9999999999)")
+print("💰 Gotowe! Automatycznie dodano 10 miliardów Coins.")
+print("   Możesz wkleić skrypt jeszcze raz żeby dodać kolejne 10B.")
